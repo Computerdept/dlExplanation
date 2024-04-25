@@ -1,0 +1,281 @@
+Certainly! This code is all about using historical data of Google stock prices to train a model to predict future prices. Here's a simplified breakdown:
+
+1. **Data Setup**: 
+   - The code starts by getting historical stock price data for training from a file.
+   - It then scales down the prices to make them easier for the model to work with.
+
+2. **Preparing Input and Output**:
+   - It creates sequences of 60 consecutive days' stock prices as inputs.
+   - The corresponding output for each sequence is the stock price of the next day.
+   - This prepares the data for training the model to learn the patterns in the stock prices.
+
+3. **Building the Model**:
+   - It sets up a special type of neural network called an LSTM model.
+   - This model is good at learning patterns in sequences of data, like time series.
+
+4. **Training the Model**:
+   - The model is trained using the prepared input-output pairs.
+   - It learns from the historical data to predict future stock prices.
+
+5. **Testing the Model**:
+   - The model is then used to predict the stock prices for a set of test data.
+   - It hasn't seen this data before, so it's a way to check how well it can predict new prices.
+
+6. **Visualizing the Results**:
+   - Finally, the real and predicted stock prices are compared visually.
+   - This helps to see how accurate the model's predictions are.
+
+Overall, the goal is to create a model that can learn from past stock prices to make accurate predictions about future prices.
+
+
+
+
+
+
+This code snippet imports necessary libraries, uploads a dataset file, and loads the training dataset for Google stock prices. Let's break it down:
+
+1. **Importing Libraries**:
+   ```python
+   import numpy as np
+   import matplotlib.pyplot as plt
+   import pandas as pd
+   from sklearn.preprocessing import MinMaxScaler
+   from tensorflow.keras.models import Sequential
+   from tensorflow.keras.layers import LSTM
+   from tensorflow.keras.layers import Dense
+   from tensorflow.keras.layers import Dropout
+   ```
+
+2. **Uploading Dataset File**:
+   ```python
+   from google.colab import files
+   uploaded = files.upload()
+   ```
+   - This command allows the user to upload a dataset file from their local system to the Google Colab environment.
+
+3. **Loading Training Dataset**:
+   ```python
+   dataset_train = pd.read_csv('Google_Stock_Price_Train.csv')
+   dataset_train.head()
+   ```
+   - This block reads the uploaded CSV file named 'Google_Stock_Price_Train.csv' into a Pandas DataFrame object `dataset_train`.
+   - The `head()` function is used to display the first few rows of the dataset for inspection.
+
+Overall, this code segment sets up the environment, uploads the dataset file, and loads the training dataset for Google stock prices into a Pandas DataFrame for further analysis and model training.
+
+
+
+This code segment preprocesses the training dataset for the Google stock prices by scaling the values using MinMaxScaler from scikit-learn. Let's break it down:
+
+1. **Extracting Training Data**:
+   ```python
+   training_set = dataset_train.iloc[:, 1: 2].values
+   training_set.shape
+   ```
+   - This code extracts the 'Open' column from the training dataset (`dataset_train`) and converts it into a NumPy array.
+   - The `.shape` attribute is used to check the shape of the extracted training data.
+
+2. **Scaling the Data**:
+   ```python
+   sc = MinMaxScaler(feature_range = (0, 1))
+   training_set_scaled = sc.fit_transform(training_set)
+   ```
+   - An instance of MinMaxScaler is created with the feature range set to (0, 1), which scales the data to this range.
+   - The `fit_transform()` method of the scaler is then applied to the training data (`training_set`), which computes the minimum and maximum values of the training data and scales it accordingly.
+   - The scaled data is stored in the variable `training_set_scaled`.
+
+Overall, this code segment preprocesses the training data by scaling it to a range between 0 and 1 using MinMaxScaler, which is a common preprocessing step in machine learning and deep learning models.
+
+
+
+This code segment prepares the training data for an LSTM (Long Short-Term Memory) model by creating input-output pairs with a sequence length of 60 timesteps. Let's break it down:
+
+1. **Creating Input-Output Pairs**:
+   ```python
+   X_train = []
+   y_train = []
+   for i in range(60, len(training_set_scaled)):
+       X_train.append(training_set_scaled[i-60: i, 0])
+       y_train.append(training_set_scaled[i, 0])
+   ```
+   - This loop iterates over the scaled training data (`training_set_scaled`) starting from the 61st timestep.
+   - For each iteration, it creates an input sequence (`X_train`) consisting of the previous 60 timesteps and the corresponding output value (`y_train`) at the current timestep.
+
+2. **Converting to NumPy Arrays**:
+   ```python
+   X_train, y_train = np.array(X_train), np.array(y_train)
+   ```
+   - After creating the input-output pairs, the lists are converted into NumPy arrays for further processing.
+
+3. **Reshaping Input Data**:
+   ```python
+   X_train = np.reshape(X_train, newshape=(X_train.shape[0], X_train.shape[1], 1))
+   ```
+   - The input data (`X_train`) is reshaped into a 3D array to match the input shape expected by the LSTM model.
+   - The new shape is `(number of samples, number of timesteps, number of features)`.
+
+4. **Checking Shapes**:
+   ```python
+   X_train.shape
+   y_train.shape
+   ```
+   - These lines print the shapes of the input data (`X_train`) and the output data (`y_train`), respectively.
+
+Overall, this code segment prepares the training data in the appropriate format for training an LSTM model, with input sequences of 60 timesteps and corresponding output values.
+
+
+
+
+These code segments create and display two plots showing the Google stock prices over time. Let's break them down:
+
+1. **Plotting Google Stock Open Prices**:
+   ```python
+   plt.figure(figsize=(18, 8))
+   plt.plot(dataset_train['Open'])
+   plt.title("Google Stock Open Prices")
+   plt.xlabel("Time (oldest -> latest)")
+   plt.ylabel("Stock Open Price")
+   plt.show()
+   ```
+   - This code creates a figure with a size of 18x8 inches.
+   - It plots the 'Open' prices from the `dataset_train` DataFrame over time.
+   - The title of the plot is set as "Google Stock Open Prices", and the labels for the x-axis and y-axis are specified.
+   - Finally, the plot is displayed using `plt.show()`.
+
+2. **Plotting Google Stock Low Prices**:
+   ```python
+   plt.figure(figsize=(18, 8))
+   plt.plot(dataset_train['Low'])
+   plt.title("Google Stock Low Prices")
+   plt.xlabel("Time (oldest -> latest)")
+   plt.ylabel("Stock Lowest Price")
+   plt.show()
+   ```
+   - Similarly, this code segment creates another figure with the same size.
+   - It plots the 'Low' prices from the `dataset_train` DataFrame over time.
+   - The title of the plot is set as "Google Stock Low Prices", and the labels for the x-axis and y-axis are specified.
+   - Finally, the plot is displayed using `plt.show()`.
+
+Overall, these code segments visualize the historical trends of Google stock prices, specifically the open prices and the lowest prices, allowing for insights into the stock's performance over time.
+
+
+
+
+
+This code segment prepares the test data for evaluating the LSTM model's performance on predicting Google stock prices. Let's break it down:
+
+1. **Extracting Real Stock Prices**:
+   ```python
+   real_stock_price = dataset_test.iloc[:, 1: 2].values
+   real_stock_price.shape
+   ```
+   - The code extracts the 'Open' prices from the test dataset (`dataset_test`) and converts them into a NumPy array (`real_stock_price`).
+   - The `.shape` attribute is used to check the shape of the extracted real stock prices.
+
+2. **Concatenating Datasets**:
+   ```python
+   dataset_total = pd.concat((dataset_train['Open'], dataset_test['Open']), axis=0)
+   ```
+   - This line concatenates the 'Open' prices from both the training and test datasets (`dataset_train` and `dataset_test`) along the vertical axis (axis=0).
+   - It creates a combined dataset (`dataset_total`) containing historical prices from both datasets.
+
+3. **Extracting Inputs**:
+   ```python
+   inputs = dataset_total[len(dataset_total) - len(dataset_test) - 60:].values
+   ```
+   - The code extracts the input data for the test dataset from the combined dataset.
+   - It selects the last 60 days' prices from the combined dataset for testing.
+   - The `.values` attribute is used to convert the extracted inputs into a NumPy array.
+
+Overall, this code segment prepares the test data by extracting the real stock prices, concatenating datasets, and extracting input data for testing the LSTM model's predictions.
+
+
+
+
+This code segment reshapes and scales the input data for testing the LSTM model's predictions. Let's break it down:
+
+1. **Reshaping Input Data**:
+   ```python
+   inputs = inputs.reshape(-1, 1)
+   ```
+   - The code reshapes the input data (`inputs`) to have only one column.
+   - The `-1` argument in the `reshape()` function indicates that NumPy should automatically calculate the appropriate number of rows based on the number of elements in the array, while `1` specifies the number of columns.
+
+2. **Scaling Input Data**:
+   ```python
+   inputs = sc.transform(inputs)
+   ```
+   - The reshaped input data is then scaled using the previously created MinMaxScaler (`sc`).
+   - This step ensures that the input data is transformed into the same scale as the training data, allowing for consistent model predictions.
+
+3. **Checking Length of Inputs**:
+   ```python
+   len(inputs)
+   ```
+   - This line simply checks the length of the scaled input data.
+
+Overall, this code segment prepares the input data for testing the LSTM model's predictions by reshaping it to have a single column and scaling it using the same scaler that was used for the training data.
+
+
+
+This code segment generates predictions for the test set using the trained LSTM model (`regressor`). Here's the breakdown:
+
+1. **Creating Test Input Sequences**:
+   ```python
+   X_test = []
+   for i in range(60, len(inputs)):
+       X_test.append(inputs[i-60:i, 0])
+   X_test = np.array(X_test)
+   ```
+   - This loop iterates over the scaled input data (`inputs`) to create input sequences for testing.
+   - Each input sequence consists of the previous 60 days' stock prices.
+   - The resulting sequences are stored in `X_test` as a NumPy array.
+
+2. **Predicting Stock Prices**:
+   ```python
+   predicted_stock_price = regressor.predict(X_test)
+   ```
+   - The LSTM model (`regressor`) predicts the stock prices based on the input sequences (`X_test`).
+   - The predicted prices are stored in `predicted_stock_price`.
+
+3. **Inverse Scaling**:
+   ```python
+   predicted_stock_price = sc.inverse_transform(predicted_stock_price)
+   ```
+   - The predicted stock prices are inverse-transformed to revert them to their original scale.
+   - This step is necessary to obtain the predicted stock prices in their original units.
+
+Overall, this code segment generates predictions for the test set using the trained LSTM model and then inverse-scales the predicted prices to their original units for evaluation and analysis.
+
+
+
+This code segment visualizes the real and predicted stock prices for Google. Let's break it down:
+
+1. **Plotting Real and Predicted Prices**:
+   ```python
+   plt.plot(real_stock_price, color='red', label='Real price')
+   plt.plot(predicted_stock_price, color='blue', label='Predicted price')
+   ```
+   - Two lines are plotted on the same graph:
+     - The real stock prices are plotted in red (`real_stock_price`).
+     - The predicted stock prices are plotted in blue (`predicted_stock_price`).
+
+2. **Adding Title and Labels**:
+   ```python
+   plt.title('Google price prediction')
+   plt.xlabel('Time')
+   plt.ylabel('Price')
+   ```
+   - The title of the plot is set as 'Google price prediction'.
+   - The x-axis label is set as 'Time'.
+   - The y-axis label is set as 'Price'.
+
+3. **Adding Legend and Displaying the Plot**:
+   ```python
+   plt.legend()
+   plt.show()
+   ```
+   - A legend is added to the plot to distinguish between the real and predicted prices.
+   - The plot is displayed using `plt.show()`.
+
+Overall, this code segment visually compares the real and predicted stock prices for Google over time, allowing for an assessment of the model's performance in predicting stock prices.

@@ -1,0 +1,613 @@
+
+
+
+
+Sure, let's simplify the explanation:
+
+1. **Getting Ready**: First, we load and take a quick look at our movie review data. We want to understand how many reviews we have, how they're categorized, and how long they are on average.
+
+2. **Preparing the Data**: We convert the text reviews into a format our computer can understand. Think of it like turning words into numbers, which is easier for the computer to work with.
+
+3. **Splitting the Data**: We divide our data into two groups: one for training our model and another for testing how well it performs. This helps us see if our model can generalize beyond the data it was trained on.
+
+4. **Building the Model**: We design our "brain" called a neural network. It's made up of layers that process information in different ways. We create one model with one layer and another with two layers to see which works better.
+
+5. **Training the Model**: We teach our model to understand the patterns in the data. This involves showing it examples and letting it adjust its internal settings to get better at making predictions.
+
+6. **Checking Progress**: As our model learns, we keep an eye on how well it's doing. We look at two things: how accurate it is during training and how well it performs on new, unseen data (validation).
+
+7. **Evaluating Performance**: Once training is done, we put our model to the test using the test data. We want to see if it can correctly predict sentiment (positive or negative) based on reviews it hasn't seen before.
+
+8. **Getting Insights**: We summarize the results and check out metrics like accuracy and confusion matrices to understand where our model excels and where it struggles.
+
+This process helps us build and fine-tune models that can understand and classify sentiment in movie reviews.
+
+
+
+
+
+
+
+
+
+
+
+
+
+This code snippet imports necessary packages for building a convolutional neural network (CNN) model using Keras for text classification. Let's break down each line:
+
+1. **Importing NumPy**:
+   ```python
+   import numpy as np
+   ```
+   - This line imports the NumPy library, which is used for numerical computing in Python. NumPy provides support for large, multi-dimensional arrays and matrices, along with a collection of mathematical functions to operate on these arrays.
+
+2. **Importing Pandas**:
+   ```python
+   import pandas as pd
+   ```
+   - This line imports the Pandas library, which is used for data manipulation and analysis in Python. Pandas provides data structures like DataFrame for organizing and working with structured data.
+
+3. **Importing Matplotlib and Seaborn**:
+   ```python
+   from matplotlib import cm
+   import matplotlib.pyplot as plt
+   import seaborn as sns
+   # %matplotlib inline
+   ```
+   - These lines import Matplotlib and Seaborn libraries for data visualization in Python. Matplotlib provides a wide variety of plotting functions, while Seaborn offers a high-level interface for creating attractive statistical graphics. The `%matplotlib inline` magic command (commented out) is typically used in Jupyter Notebooks to display plots inline.
+
+4. **Importing time**:
+   ```python
+   import time
+   ```
+   - This line imports the `time` module, which provides various functions for working with time-related tasks such as measuring time intervals or formatting dates and times.
+
+5. **Importing Scikit-Learn Metrics**:
+   ```python
+   from sklearn.metrics import confusion_matrix, accuracy_score, auc
+   ```
+   - This line imports specific metrics from Scikit-Learn, a machine learning library in Python. These metrics include confusion matrix, accuracy score, and area under the curve (AUC), which are commonly used for evaluating classification models.
+
+6. **Importing Keras Packages**:
+   ```python
+   from keras.preprocessing import sequence
+   from keras.models import Sequential
+   from keras.layers import Dense, Dropout, Activation
+   from keras.layers import Embedding
+   from keras.layers import Conv1D, GlobalMaxPooling1D
+   from keras.callbacks import EarlyStopping
+   from keras import models
+   from keras import layers
+   from keras.datasets import imdb
+   ```
+   - These lines import various modules and classes from Keras, a high-level neural networks API written in Python. These are essential for building and training convolutional neural network (CNN) models for text classification tasks.
+
+Overall, this code segment sets up the necessary environment and imports required libraries and packages for building a CNN model for text classification using Keras.
+
+
+
+
+This code segment loads the IMDb movie review dataset for sentiment analysis using Keras. Let's break down each line:
+
+1. **Loading the Dataset**:
+   ```python
+   (X_train, y_train), (X_test, y_test) = imdb.load_data()
+   ```
+   - This line loads the IMDb movie review dataset using the `load_data()` function from Keras' `imdb` module.
+   - The dataset is split into training and testing sets, where `X_train` contains the training reviews, `y_train` contains the corresponding training labels (sentiments), `X_test` contains the testing reviews, and `y_test` contains the corresponding testing labels.
+
+2. **Concatenating Training and Testing Data**:
+   ```python
+   X = np.concatenate((X_train, X_test), axis=0)
+   y = np.concatenate((y_train, y_test), axis=0)
+   ```
+   - These lines concatenate the training and testing data arrays along the first axis (axis=0), resulting in combined feature and target arrays.
+   - `X` contains the combined reviews (features) from both training and testing sets.
+   - `y` contains the combined labels (sentiments) from both training and testing sets.
+
+Overall, this code loads the IMDb movie review dataset and combines the training and testing sets into feature (`X`) and target (`y`) arrays for further processing and model training.
+
+
+
+This code segment explores the IMDb movie review dataset to understand its characteristics. Let's break down each part:
+
+1. **Printing Training Data Information**:
+   ```python
+   print("Training data: ")
+   print(X.shape)
+   print(y.shape)
+   ```
+   - These lines print the shape of the feature matrix `X` and the target vector `y`, providing information about the size of the training data. 
+   - `X.shape` indicates the number of reviews and the maximum length of each review, while `y.shape` indicates the number of corresponding labels (sentiments).
+
+2. **Printing Class Information**:
+   ```python
+   print("Classes: ")
+   print(np.unique(y))
+   ```
+   - This line prints the unique classes (sentiments) present in the dataset. The `np.unique()` function is used to find unique elements in the target vector `y`.
+
+3. **Calculating Number of Unique Words**:
+   ```python
+   print("Number of words: ")
+   print(len(np.unique(np.hstack(X))))
+   ```
+   - This line calculates the number of unique words in the entire dataset by concatenating all the reviews (`X`), flattening the resulting array, and finding the unique elements using `np.unique()`. 
+   - It provides insight into the vocabulary size of the dataset.
+
+4. **Calculating Review Length Statistics**:
+   ```python
+   print("Review length: ")
+   result = [len(x) for x in X]
+   print("Mean %.2f words (%f)" % (np.mean(result), np.std(result))) 
+   ```
+   - These lines calculate the length of each review in terms of the number of words and print statistics about the review lengths.
+   - `result` is a list comprehension that iterates over each review in `X` and calculates its length using `len()`.
+   - The mean and standard deviation of the review lengths are printed, providing insights into the distribution of review lengths in the dataset.
+
+5. **Visualizing Review Length Distribution**:
+   ```python
+   plt.boxplot(result)
+   plt.show()
+   ```
+   - This block creates a boxplot to visualize the distribution of review lengths.
+   - It helps in understanding the spread of review lengths, including outliers, quartiles, and median.
+
+Overall, this code segment provides comprehensive insights into the IMDb movie review dataset, including its size, class distribution, vocabulary size, and review length characteristics.
+
+
+
+
+This code defines a function `vectorize_sequences` that converts sequences of integers into a binary matrix representation. Let's break down the function:
+
+1. **Function Definition**:
+   ```python
+   def vectorize_sequences(sequences, dimension=5000):
+   ```
+   - This line defines a function named `vectorize_sequences` that takes two parameters:
+     - `sequences`: A list of sequences (lists of integers) to be vectorized.
+     - `dimension`: An optional parameter specifying the length of the resulting binary vectors. By default, it's set to 5000.
+
+2. **Initializing Results Matrix**:
+   ```python
+   results = np.zeros((len(sequences), dimension))
+   ```
+   - This line initializes a matrix `results` of shape `(len(sequences), dimension)` filled with zeros.
+   - Each row of this matrix will represent a sequence, and each column will represent a unique integer index within the specified dimension.
+
+3. **Vectorization Loop**:
+   ```python
+   for i, sequence in enumerate(sequences):
+       results[i, sequence] = 1.
+   ```
+   - This loop iterates over each sequence in the `sequences` list.
+   - For each sequence, it sets the corresponding indices in the `results` matrix to 1, effectively creating a binary representation of each sequence.
+   - The `enumerate()` function is used to iterate over both the index (`i`) and the sequence itself.
+
+4. **Returning the Results**:
+   ```python
+   return results
+   ```
+   - After vectorizing all sequences, the function returns the resulting binary matrix.
+
+Overall, this function takes a list of sequences and converts them into a binary matrix representation, where each row represents a sequence, and each column represents the presence or absence of a specific integer index within the sequence. This type of representation is commonly used in natural language processing tasks, such as text classification, where sequences of words or tokens are converted into numerical format for machine learning models.
+
+
+
+This code snippet defines a deep neural network (DNN) model for sentiment analysis of IMDb movie reviews. Let's break down each part:
+
+1. **Model Initialization**:
+   ```python
+   model = models.Sequential()
+   ```
+   - This line creates an instance of the Sequential model, which allows you to create a linear stack of layers.
+
+2. **Adding Dense Layers**:
+   ```python
+   model.add(layers.Dense(32, activation='relu', input_shape=(5000,)))
+   ```
+   - This line adds a fully connected (dense) layer to the model with 32 units and ReLU activation function.
+   - The `input_shape` parameter specifies the shape of the input data, which is a vector of length 5000 representing the vectorized movie reviews.
+
+3. **Adding Additional Dense Layers**:
+   ```python
+   model.add(layers.Dense(32, activation='relu'))
+   ```
+   - This line adds another fully connected layer with 32 units and ReLU activation function.
+   - There's no need to specify the input shape in subsequent layers because Keras automatically infers it from the previous layer.
+
+4. **Adding Output Layer**:
+   ```python
+   model.add(layers.Dense(1, activation='sigmoid'))
+   ```
+   - This line adds the output layer with a single neuron and sigmoid activation function.
+   - Sigmoid activation is used to squash the output values between 0 and 1, which is suitable for binary classification tasks like sentiment analysis where the output represents the probability of the positive class.
+
+Overall, this code defines a simple DNN model architecture consisting of input, hidden, and output layers for sentiment analysis of IMDb movie reviews.
+
+
+
+
+This code segment sets aside a validation set from the training data for model evaluation during training. Here's a breakdown:
+
+1. **Creating Validation Set**:
+   ```python
+   x_val = x_train[:10000]
+   y_val = y_train[:10000]
+   ```
+   - These lines assign the first 10,000 samples of the training features (`x_train`) and labels (`y_train`) to the validation set (`x_val` and `y_val`, respectively).
+   - The validation set is used to evaluate the model's performance during training and tune hyperparameters without touching the test set.
+
+2. **Creating Partial Training Set**:
+   ```python
+   partial_x_train = x_train[10000:]
+   partial_y_train = y_train[10000:]
+   ```
+   - These lines assign the remaining training samples (from index 10,000 onwards) of the training features (`x_train`) and labels (`y_train`) to the partial training set (`partial_x_train` and `partial_y_train`, respectively).
+   - The partial training set is used for actual model training.
+
+Overall, this code segment partitions the training data into a validation set (for evaluation) and a partial training set (for model training) to facilitate the training process and monitor the model's performance.
+
+
+
+
+This code segment compiles and trains the DNN model with the specified configuration. Let's break it down:
+
+1. **Compiling the Model**:
+   ```python
+   model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])
+   ```
+   - This line compiles the model using the Adam optimizer, binary crossentropy loss function, and accuracy metric for evaluation during training.
+   - Adam optimizer is an efficient optimization algorithm commonly used for training deep learning models.
+   - Binary crossentropy loss function is suitable for binary classification tasks like sentiment analysis.
+   - Accuracy metric is used to monitor the model's performance during training.
+
+2. **Model Training**:
+   ```python
+   start_time_m1 = time.time()
+   history = model.fit(partial_x_train,
+                       partial_y_train,
+                       epochs=20,
+                       batch_size=512,
+                       validation_data=(x_val, y_val))
+   ```
+   - This block trains the model using the `fit()` method.
+   - `partial_x_train` and `partial_y_train` are the features and labels of the partial training set, respectively.
+   - `epochs=20` specifies the number of training epochs (iterations over the entire dataset).
+   - `batch_size=512` specifies the number of samples per gradient update.
+   - `validation_data=(x_val, y_val)` provides the validation data to evaluate the model's performance after each epoch.
+   - The training history is stored in the `history` variable.
+
+3. **Measuring Training Time**:
+   ```python
+   total_time_m1 = time.time() - start_time_m1
+   print("The Dense Convolutional Neural Network 1 layer took %.4f seconds to train." % (total_time_m1))
+   ```
+   - This code calculates and prints the total time taken to train the model.
+
+Overall, this code segment compiles the DNN model, trains it on the partial training set, evaluates its performance on the validation set, and measures the training time.
+
+This code segment extracts and prints the keys available in the `history` dictionary, which contains information about the training history of the model, such as training and validation accuracy and loss. Let's break it down:
+
+1. **Extracting History Information**:
+   ```python
+   history_dict = history.history
+   ```
+   - This line assigns the content of the `history` object to the `history_dict` dictionary, which contains training metrics such as accuracy and loss.
+
+2. **Printing Available Keys**:
+   ```python
+   print(history_dict.keys())
+   ```
+   - This line prints the keys available in the `history_dict` dictionary.
+   - The keys typically include `'acc'` (training accuracy), `'val_acc'` (validation accuracy), `'loss'` (training loss), and `'val_loss'` (validation loss).
+
+3. **Extracting Metrics**:
+   ```python
+   acc = history_dict['acc']
+   val_acc = history_dict['val_acc']
+   loss = history_dict['loss']
+   val_loss = history_dict['val_loss']
+   ```
+   - These lines extract the training and validation accuracy (`acc` and `val_acc`) as well as the training and validation loss (`loss` and `val_loss`) from the `history_dict`.
+
+Overall, this code segment allows you to inspect and access the training history metrics obtained during the model training process, providing insights into the model's performance and training dynamics.
+
+
+This code segment generates and plots the training and validation loss over epochs to visualize the model's performance during training. Let's break it down:
+
+1. **Generating Epochs**:
+   ```python
+   epochs = range(1, len(acc) + 1)
+   ```
+   - This line generates a range of integers representing the epochs, starting from 1 to the total number of epochs (length of the accuracy array `acc`).
+
+2. **Plotting Model Loss**:
+   ```python
+   plt.plot(epochs, loss, 'bo', label='Training loss')
+   plt.plot(epochs, val_loss, 'b', label='Validation loss')
+   ```
+   - These lines plot the training and validation loss over epochs.
+   - `epochs` is on the x-axis, while `loss` and `val_loss` are on the y-axis.
+   - `'bo'` represents blue dots for training loss, and `'b'` represents a solid blue line for validation loss.
+
+3. **Setting Plot Title and Labels**:
+   ```python
+   plt.title('Training and validation loss')
+   plt.xlabel('Epochs')
+   plt.ylabel('Loss')
+   ```
+   - These lines set the title of the plot and labels for the x-axis and y-axis.
+
+4. **Adding Legend**:
+   ```python
+   plt.legend()
+   ```
+   - This line adds a legend to the plot, indicating which line represents training loss and which represents validation loss.
+
+5. **Displaying the Plot**:
+   ```python
+   plt.show()
+   ```
+   - This line displays the plot with the generated training and validation loss curves.
+
+Overall, this code segment provides a visual representation of the training and validation loss trends over epochs, allowing you to assess the model's convergence and generalization performance during training.
+
+
+
+This code segment clears the previous figure and then plots the training and validation accuracy over epochs to visualize the model's performance during training. Let's break it down:
+
+1. **Clearing the Figure**:
+   ```python
+   plt.clf()
+   ```
+   - This line clears the current figure, allowing for a clean plot of the new data.
+
+2. **Extracting Accuracy Values**:
+   ```python
+   acc_values = history_dict['acc']
+   val_acc_values = history_dict['val_acc']
+   ```
+   - These lines extract the training and validation accuracy values from the `history_dict`.
+
+3. **Plotting Model Accuracy**:
+   ```python
+   plt.plot(epochs, acc, 'bo', label='Training acc')
+   plt.plot(epochs, val_acc, 'b', label='Validation acc')
+   ```
+   - These lines plot the training and validation accuracy over epochs.
+   - `epochs` is on the x-axis, while `acc` and `val_acc` are on the y-axis.
+   - `'bo'` represents blue dots for training accuracy, and `'b'` represents a solid blue line for validation accuracy.
+
+4. **Setting Plot Title and Labels**:
+   ```python
+   plt.title('Training and validation accuracy')
+   plt.xlabel('Epochs')
+   plt.ylabel('Loss')
+   ```
+   - These lines set the title of the plot and labels for the x-axis and y-axis.
+
+5. **Adding Legend**:
+   ```python
+   plt.legend()
+   ```
+   - This line adds a legend to the plot, indicating which line represents training accuracy and which represents validation accuracy.
+
+6. **Displaying the Plot**:
+   ```python
+   plt.show()
+   ```
+   - This line displays the plot with the generated training and validation accuracy curves.
+
+Overall, this code segment provides a visual representation of the training and validation accuracy trends over epochs, allowing you to assess the model's performance and convergence during training.
+
+
+
+
+
+
+This code segment prints the model summary, makes predictions on the test data, calculates the accuracy score, and visualizes the confusion matrix. Let's break it down:
+
+1. **Printing Model Summary**:
+   ```python
+   print(model.summary())
+   ```
+   - This line prints a summary of the model architecture, including the layers, output shapes, and number of parameters.
+
+2. **Making Predictions**:
+   ```python
+   pred = model.predict(x_test)
+   classes_x = np.argmax(pred, axis=1)
+   ```
+   - These lines make predictions on the test data (`x_test`) using the trained model (`model.predict()`).
+   - `np.argmax(pred, axis=1)` extracts the class with the highest probability for each prediction, converting the predictions into class labels.
+
+3. **Calculating Accuracy Score**:
+   ```python
+   accuracy_score(y_test, classes_x)
+   ```
+   - This line calculates the accuracy score by comparing the true labels (`y_test`) with the predicted labels (`classes_x`).
+
+4. **Confusion Matrix**:
+   ```python
+   conf_mat = confusion_matrix(y_test, classes_x)
+   print(conf_mat)
+   ```
+   - This block calculates the confusion matrix using the true labels (`y_test`) and the predicted labels (`classes_x`).
+   - The confusion matrix provides a summary of the model's performance, showing the number of true positives, true negatives, false positives, and false negatives for each class.
+
+5. **Normalized Confusion Matrix Visualization**:
+   ```python
+   conf_mat_normalized = conf_mat.astype('float') / conf_mat.sum(axis=1)[:, np.newaxis]
+   sns.heatmap(conf_mat_normalized)
+   plt.ylabel('True label')
+   plt.xlabel('Predicted label')
+   ```
+   - This block normalizes the confusion matrix values to the range [0, 1] and visualizes the normalized confusion matrix using a heatmap.
+   - Each cell in the heatmap represents the proportion of instances that were classified into a particular class relative to the total number of instances in that true class.
+
+Overall, this code segment provides insights into the model's performance, including accuracy score and confusion matrix visualization, which help evaluate its classification performance on the test data.
+
+
+
+
+This code segment defines a deep neural network (DNN) model with two hidden layers, compiles it, trains it, and measures the training time. Let's break it down:
+
+1. **Defining the Model**:
+   ```python
+   model2 = models.Sequential()
+   model2.add(layers.Dense(32, activation='relu', input_shape=(5000,)))
+   model2.add(layers.Dense(32, activation='relu'))
+   model2.add(layers.Dense(32, activation='relu'))
+   model2.add(layers.Dense(1, activation='sigmoid'))
+   ```
+   - This block defines a DNN model (`model2`) with two hidden layers, each having 32 units and ReLU activation function.
+   - The input shape is specified as `(5000,)`, indicating that the input data has a dimensionality of 5000 (the vectorized movie reviews).
+   - The output layer has a single neuron with a sigmoid activation function, suitable for binary classification tasks like sentiment analysis.
+
+2. **Compiling the Model**:
+   ```python
+   model2.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])
+   ```
+   - This line compiles the model using the Adam optimizer, binary crossentropy loss function, and accuracy metric for evaluation during training.
+
+3. **Model Training**:
+   ```python
+   start_time_m2 = time.time()
+   history = model2.fit(partial_x_train,
+                        partial_y_train,
+                        epochs=20,
+                        batch_size=512,
+                        validation_data=(x_val, y_val))
+   ```
+   - This block trains the model using the `fit()` method.
+   - `partial_x_train` and `partial_y_train` are the features and labels of the partial training set, respectively.
+   - `epochs=20` specifies the number of training epochs (iterations over the entire dataset).
+   - `batch_size=512` specifies the number of samples per gradient update.
+   - `validation_data=(x_val, y_val)` provides the validation data to evaluate the model's performance after each epoch.
+   - The training history is stored in the `history` variable.
+
+4. **Measuring Training Time**:
+   ```python
+   total_time_m2 = time.time() - start_time_m2
+   print("The Dense Convolutional Neural Network 2 layers took %.4f seconds to train." % (total_time_m2))
+   ```
+   - This code calculates and prints the total time taken to train the model.
+
+Overall, this code segment trains a DNN model with two hidden layers for sentiment analysis of IMDb movie reviews, evaluates its performance, and measures the training time.
+
+
+
+
+This code segment plots the training and validation loss of a DNN model with two hidden layers over epochs to visualize its performance during training. Let's break it down:
+
+1. **Extracting Loss Values and Epochs**:
+   ```python
+   acc = history.history['acc']
+   val_acc = history.history['val_acc']
+   loss = history.history['loss']
+   val_loss = history.history['val_loss']
+   epochs = range(1, len(acc) + 1)
+   ```
+   - These lines extract the training and validation accuracy and loss values from the `history` object obtained during model training.
+   - The `epochs` variable is generated to represent the range of epochs.
+
+2. **Plotting Loss**:
+   ```python
+   plt.plot(epochs, loss, 'bo', label='Training loss')
+   plt.plot(epochs, val_loss, 'b', label='Validation loss')
+   ```
+   - These lines plot the training and validation loss over epochs.
+   - `'bo'` represents blue dots for training loss, and `'b'` represents a solid blue line for validation loss.
+
+3. **Setting Plot Title and Labels**:
+   ```python
+   plt.title('DNN 2 layer Training and validation loss')
+   plt.xlabel('Epochs')
+   plt.ylabel('Loss')
+   ```
+   - These lines set the title of the plot and labels for the x-axis and y-axis.
+
+4. **Adding Legend**:
+   ```python
+   plt.legend()
+   ```
+   - This line adds a legend to the plot, indicating which line represents training loss and which represents validation loss.
+
+5. **Displaying the Plot**:
+   ```python
+   plt.show()
+   ```
+   - This line displays the plot with the generated training and validation loss curves.
+
+Overall, this code segment provides a visual representation of the training and validation loss trends over epochs for the DNN model with two hidden layers, allowing you to assess its convergence and generalization performance during training.
+
+
+
+This code segment clears the previous figure, plots the training and validation accuracy of a DNN model with two hidden layers over epochs, and evaluates its performance on the test data. Let's break it down:
+
+1. **Clearing the Figure**:
+   ```python
+   plt.clf()
+   ```
+   - This line clears the current figure, allowing for a clean plot of the new data.
+
+2. **Extracting Accuracy Values**:
+   ```python
+   acc_values = history_dict['acc']
+   val_acc_values = history_dict['val_acc']
+   ```
+   - These lines extract the training and validation accuracy values from the `history_dict`.
+
+3. **Plotting Accuracy**:
+   ```python
+   plt.plot(epochs, acc, 'bo', label='Training acc')
+   plt.plot(epochs, val_acc, 'b', label='Validation acc')
+   ```
+   - These lines plot the training and validation accuracy over epochs.
+   - `epochs` is on the x-axis, while `acc` and `val_acc` are on the y-axis.
+   - `'bo'` represents blue dots for training accuracy, and `'b'` represents a solid blue line for validation accuracy.
+
+4. **Setting Plot Title and Labels**:
+   ```python
+   plt.title('DNN 2 layer Training and validation accuracy')
+   plt.xlabel('Epochs')
+   plt.ylabel('Loss')
+   ```
+   - These lines set the title of the plot and labels for the x-axis and y-axis.
+
+5. **Adding Legend**:
+   ```python
+   plt.legend()
+   ```
+   - This line adds a legend to the plot, indicating which line represents training accuracy and which represents validation accuracy.
+
+6. **Displaying the Plot**:
+   ```python
+   plt.show()
+   ```
+   - This line displays the plot with the generated training and validation accuracy curves.
+
+7. **Printing Model Summary**:
+   ```python
+   print(model2.summary())
+   ```
+   - This line prints a summary of the DNN model architecture.
+
+8. **Making Predictions and Evaluating Performance**:
+   ```python
+   pred = model2.predict(x_test)
+   classes_x = np.argmax(pred, axis=-1)
+   accuracy_score(y_test, classes_x)
+   ```
+   - This block makes predictions on the test data (`x_test`) using the trained model (`model2.predict()`).
+   - `np.argmax(pred, axis=-1)` extracts the class with the highest probability for each prediction, converting the predictions into class labels.
+   - The `accuracy_score()` function calculates the accuracy score by comparing the true labels (`y_test`) with the predicted labels (`classes_x`).
+
+Overall, this code segment provides visualizations of the training and validation accuracy trends over epochs for the DNN model with two hidden layers and evaluates its performance on the test data.
+
+
+
+
+
